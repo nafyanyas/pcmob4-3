@@ -6,23 +6,24 @@ import { useNavigation } from "@react-navigation/native";
 import { GiftedChat } from "react-native-gifted-chat";
 import firebase from "../database/firebaseDB";
 const auth = firebase.auth();
-
-const demoMessage = {
-  _id: 1,
-  text: "Hello there!",
-  createdAt: new Date(),
-  user: {
-    _id: 2,
-    name: "Demo person",
-    avatar: "https://placeimg.com/140/140/any",
-  },
-};
+const db = firebase.firestore().collection("messages");
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const navigation = useNavigation();
 
   useEffect(() => {
+    const unsubscribe = db
+      .orderBy("createdAt", "desc")
+      .onSnapshot((collectionSnapshot) => {
+        const messages = collectionSnapshot.docs.map((doc) => {
+          const date = doc.data().createdAt.toDate();
+          const newDoc = { ...doc.data(), createdAt: date };
+          return newDoc;
+        });
+        setMessages(messages);
+      });
+
     auth.onAuthStateChanged((user) => {
       if (user) navigation.navigate("Chat", { id: user.id, email: user.email });
       else navigation.navigate("Login");
@@ -35,15 +36,14 @@ export default function ChatScreen() {
         </TouchableOpacity>
       ),
     });
-
-    setMessages([demoMessage]);
+    return unsubscribe;
   }, []);
 
   const logout = () => auth.signOut();
 
   function sendMessages(newMessages) {
     console.log(newMessages);
-    setMessages([...messages, ...newMessages]);
+    db.add(newMessages[0]);
   }
 
   return (
