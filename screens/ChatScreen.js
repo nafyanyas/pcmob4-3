@@ -41,9 +41,15 @@ export default function ChatScreen() {
 
   const logout = () => auth.signOut();
 
+  function sendMessages(newMessages) {
+    console.log(newMessages);
+    setMessages([...messages, ...newMessages]);
+  }
+
   return (
     <GiftedChat
       messages={messages}
+      onSend={sendMessages}
       listViewProps={{ style: { backgroundColor: "grey" } }}
       user={{ _id: 1 }}
     />
