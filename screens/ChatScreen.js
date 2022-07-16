@@ -50,8 +50,8 @@ export default function ChatScreen() {
     <GiftedChat
       messages={messages}
       onSend={sendMessages}
-      listViewProps={{ style: { backgroundColor: "grey" } }}
-      user={{ _id: 1 }}
+      listViewProps={{ style: { backgroundColor: "#666" } }}
+      user={{ _id: auth.currentUser?.uid, name: auth.currentUser?.email }}
     />
   );
 }
